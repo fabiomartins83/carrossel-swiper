@@ -71,6 +71,7 @@ body {
   height: 100%;
   transform: scale(0.70); /*scale(0.78);  🔥 diminui todos os slides */
   transition: transform 0.3s ease;
+  box-sizing: border-box;
 }
 
 .swiper-slide-active {
@@ -168,9 +169,26 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: #111;
+  background: #222;
   z-index: 10;
   color: #CFCFCF;
+  overflow: hidden;
+}
+
+#loading::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.06),
+    transparent
+  );
+  animation: shimmer 1.2s infinite;
 }
 
 .spinner {
@@ -183,9 +201,85 @@ body {
   margin-bottom: 10px;
 }
 
+/* =========================
+   SKELETON DAS IMAGENS
+========================= */
+.skeleton-slide {
+  background: #1b1b1b;
+  position: relative;
+  overflow: hidden;
+  /* 🔥 GARANTE MESMO LAYOUT DO SLIDE REAL */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.skeleton-box {
+  width: 100%;
+  height: 100%;
+  background: #222;
+  position: relative;
+  overflow: hidden;
+}
+
+/* efeito shimmer */
+.skeleton-box::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.06),
+    transparent
+  );
+  animation: shimmer 1.2s infinite;
+}
+
+/* legenda skeleton alinhada igual real */
+.skeleton-legenda {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 40px;
+  background: rgba(30,30,30,0.7);
+}
+
+/* skeleton da legenda */
+.skeleton-legenda {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 40px;
+  background: rgba(30,30,30,0.7);
+}
+
+/* =========================
+   CONTROLE DAS SETAS
+========================= */
+.swiper-button-disabled {
+  opacity: 0;
+}
+
+#container-carrossel.loading .swiper-button-next,
+#container-carrossel.loading .swiper-button-prev {
+  opacity: 0;
+  pointer-events: none;
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 </style>
 </head>
 
@@ -200,7 +294,7 @@ body {
     <div id="container-carrossel">
       <div id="loading">
         <div class="spinner"></div>
-        <p>Carregando...</p>
+        <!-- <p>Carregando...</p> -->
       </div>
       <div class="swiper">
           <div class="swiper-wrapper" id="slides"></div>
@@ -502,13 +596,22 @@ async function carregarImagem(i) {
 }
 
 async function carregarTodas() {
-  loading.style.display = "flex";
+  const containerCarrossel = document.getElementById("container-carrossel");
+  containerCarrossel.classList.add("loading");
+
+  // criarSkeletons(4);
+  loading.style.display = "none";
+
   await carregarLegendas();
+  
   const res = await Promise.all(
     Array.from({ length: 50 }, (_, i) => carregarImagem(i + 1))
   );
 
   const validos = res.filter(Boolean);
+
+  // 3. LIMPA skeletons de forma segura
+  container.innerHTML = "";
 
   validos.forEach(img => {
     const slide = document.createElement("div");
@@ -522,6 +625,7 @@ async function carregarTodas() {
 
     const nomeArquivo = img.src.split("/").pop();
     const info = legendasMap[nomeArquivo];
+
     if (info) {
       const legenda = info.legenda?.trim();
       const creditos = info.creditos?.trim();
@@ -539,6 +643,12 @@ async function carregarTodas() {
     slide.appendChild(leg);
     container.appendChild(slide);
   });
+
+  // 5. DESTROI swiper antigo (se existir)
+  if (swiper) {
+    swiper.destroy(true, true);
+    swiper = null;
+  }
 
   swiper = new Swiper('.swiper', {
     loop: true,
@@ -563,6 +673,8 @@ async function carregarTodas() {
     }
   });
   loading.style.display = "none";
+  containerCarrossel.classList.remove("loading");
+
 }
 
 /* --------------------------
@@ -606,6 +718,24 @@ async function carregarLegendas() {
   } catch (err) {
     console.warn("Falha ao carregar imagens.json. Usando fallback:", err);
     legendasMap = {};
+  }
+}
+
+/* --------------------------
+   CARREGAMENTO DO SKELETON
+---------------------------*/
+function criarSkeletons(qtd = 10) {
+  container.innerHTML = "";
+
+  for (let i = 0; i < qtd; i++) {
+    const slide = document.createElement("div");
+    slide.className = "swiper-slide skeleton-slide";
+
+    const box = document.createElement("div");
+    box.className = "skeleton-box";
+
+    slide.appendChild(box);
+    container.appendChild(slide);
   }
 }
 
