@@ -9,7 +9,7 @@
 
 <style>
 :root {
-  --altura-carrossel: 60vh;
+  --altura-carrossel: 40vh;
   --padding-container: 2%;
 }
 
@@ -47,55 +47,62 @@ body {
 }
 
 .swiper {
-  width: 75%;
-  max-width: 900px;
-  /* 🔥 AGORA o container manda no tamanho */
   width: 100%;
-  height: 100%;
+  height: var(--altura-carrossel);
   border-radius: 5px;
-  overflow: hidden;/*
-  display: flex;
-  height: 100%;
-*/
+  overflow: hidden;
 }
 
 /* 🔥 ESSENCIAL: Swiper precisa preencher altura */
 .swiper-wrapper {
-  height: 100%;
+  height: var(--altura-carrossel);
 }
 
 .swiper-slide {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: transparent; /*#000; */
-  height: 100%;
-  transform: scale(0.70); /*scale(0.78);  🔥 diminui todos os slides */
+  background: transparent;
+  height: var(--altura-carrossel);
+  width: auto;
+  transform: none; /* scale(0.7); */
   transition: transform 0.3s ease;
   box-sizing: border-box;
 }
 
 .swiper-slide-active {
-  transform: scale(1); /* central maior */
+  transform: scale(1);
   z-index: 2;
+}
+
+/* wrapper interno que abraça a imagem */
+.swiper-slide > img {
+  display: block;
 }
 
 /* imagem ajustada corretamente */
 .swiper-slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* mantém “cinema/paisagem” */
+  max-width: 100%;
+  max-height: var(--altura-carrossel);
+  width: auto;
+  height: auto;
+  display: block;
 }
 
 .legenda {
   position: absolute;
-  bottom: 0;
-  width: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: fit-content;
+  min-width: 0;
+  max-width: 100%;
   padding: 10px;
   color: #fff;
   background: rgba(0,0,0,0.5);
   text-align: center;
   font-size: 14px;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
 
 .swiper-button-next,
@@ -114,9 +121,65 @@ body {
   /*overflow: hidden; */
 }
 
-.modal img {
-  max-width: 90%;
-  max-height: 90%;
+.modal-conteudo {
+  position: relative;
+  display: inline-block; /* se ajusta ao tamanho real da imagem */
+  line-height: 0; /* remove espaço extra abaixo da img */
+}
+
+.modal-conteudo img {
+  display: block;
+  max-width: 90vw;
+  max-height: 90vh;
+  width: auto;   /* preserva proporção horizontal */
+  height: auto;  /* preserva proporção vertical */
+}
+
+.modal-fechar {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  background: rgba(0,0,0,0.5);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.modal-fechar:hover {
+  background: rgba(0,0,0,0.8);
+}
+
+.modal-legenda {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 10px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-size: 13px;
+  text-align: center;
+  box-sizing: border-box;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.modal-fechar.oculto,
+.modal-legenda.oculto {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#modalImg {
   transform-origin: center;
   will-change: transform;
   cursor: grab;
@@ -314,7 +377,11 @@ body {
 
     <!-- MODAL -->
     <div id="modal" class="modal">
-        <img id="modalImg">
+        <div class="modal-conteudo">
+            <button class="modal-fechar" onclick="fecharModal()">✕</button>
+            <img id="modalImg">
+            <div id="modalLegenda" class="modal-legenda"></div>
+        </div>
     </div>
 </div>
 
@@ -352,6 +419,7 @@ let velocityY = 0;
 
 let raf = null;
 let currentIndex = 0;
+let imagensCarregadas = []; // lista global para navegação por setas
 
 let legendasMap = {};
 
@@ -434,10 +502,13 @@ function animateZoomOut() {
 /* --------------------------
    ABRIR / FECHAR
 ---------------------------*/
-function abrirModal(src, index) {
+function abrirModal(src, index, legenda) {
   modal.style.display = "flex";
   modalImg.src = src;
-  currentIndex = index;
+
+  const modalLegenda = document.getElementById("modalLegenda");
+  modalLegenda.textContent = legenda || "";
+  modalLegenda.style.display = legenda ? "block" : "none";
 
   modalImg.onload = () => reset();
 
@@ -482,6 +553,9 @@ modalImg.addEventListener("mousedown", e => {
 
   velocityX = 0;
   velocityY = 0;
+
+  document.querySelector(".modal-fechar").classList.add("oculto");
+  document.getElementById("modalLegenda").classList.add("oculto");
 
   if (scale <= minScale) {
     holdTimer = setTimeout(() => {
@@ -542,6 +616,9 @@ window.addEventListener("mouseup", () => {
 
   animateZoomOut();
   modalImg.style.cursor = "zoom-in";
+
+  document.querySelector(".modal-fechar").classList.remove("oculto");
+  document.getElementById("modalLegenda").classList.remove("oculto");
 });
 
 /* --------------------------
@@ -611,6 +688,7 @@ async function carregarTodas() {
   );
 
   const validos = res.filter(Boolean);
+  imagensCarregadas = validos; // salva para navegação por setas
 
   // 3. LIMPA skeletons de forma segura
   container.innerHTML = "";
@@ -639,7 +717,19 @@ async function carregarTodas() {
       leg.textContent = nomeArquivo;
     }
 
-    el.onclick = () => abrirModal(img.src, img.index);
+    el.onload = () => {
+      const slideH = slide.offsetHeight;
+      const imgH   = el.offsetHeight;
+      const imgTop = el.offsetTop;
+
+      leg.style.width  = el.offsetWidth + "px";
+      leg.style.bottom = (slideH - imgTop - imgH) + "px"; /* borda inferior da imagem */
+    };
+
+    el.onclick = () => {
+      currentIndex = imagensCarregadas.indexOf(img);
+      abrirModal(img.src, img.index, leg.textContent);
+    };
 
     slide.appendChild(el);
     slide.appendChild(leg);
@@ -663,14 +753,14 @@ async function carregarTodas() {
 
     effect: "coverflow",
     centeredSlides: true,
-    slidesPerView: 1.4,
-    spaceBetween: 15,
+    slidesPerView: "auto",
+    spaceBetween: 40,
 
     coverflowEffect: {
       rotate: 0,
-      stretch: -40,
-      depth: 80,
-      modifier: 1.4,
+      stretch: -40, /* compensa o espaço vazio do scale(0.70) */
+      depth: 100,
+      modifier: 2.0,
       slideShadows: false
     }
   });
@@ -687,8 +777,39 @@ modal.onclick = e => {
 };
 
 window.addEventListener("keydown", e => {
-  if (e.key === "Escape") fecharModal();
+  if (e.key === "Escape") { fecharModal(); return; }
+  if (scale > minScale) return; // bloqueia setas no modo zoom
+
+  const modalAberto = modal.style.display === "flex";
+
+  if (e.key === "ArrowRight") {
+    if (modalAberto) {
+      currentIndex = (currentIndex + 1) % imagensCarregadas.length;
+      navegarModal(currentIndex);
+    } else {
+      swiper?.slideNext();
+    }
+  } else if (e.key === "ArrowLeft") {
+    if (modalAberto) {
+      currentIndex = (currentIndex - 1 + imagensCarregadas.length) % imagensCarregadas.length;
+      navegarModal(currentIndex);
+    } else {
+      swiper?.slidePrev();
+    }
+  }
 });
+
+function navegarModal(idx) {
+  const img = imagensCarregadas[idx];
+  const nomeArquivo = img.src.split("/").pop();
+  const info = legendasMap[nomeArquivo];
+
+  const legenda = info
+    ? [info.legenda?.trim(), info.creditos?.trim()].filter(Boolean).join(" / ")
+    : nomeArquivo;
+
+  abrirModal(img.src, img.index, legenda);
+}
 
 /* --------------------------
    CARREGAMENTO DE LEGENDA
