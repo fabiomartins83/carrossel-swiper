@@ -671,15 +671,31 @@ function stopInertia() {
 async function carregarImagem(i) {
   return new Promise(resolve => {
     let idx = 0;
+    let falhasSeguidas = 0;
 
     function tentar() {
-      if (idx >= extensoes.length) return resolve(null);
+      if (idx >= extensoes.length) {
+        return resolve({ encontrado: false, i });
+      }
 
       const src = `img/imagem${i}.${extensoes[idx]}`;
       const img = new Image();
 
-      img.onload = () => resolve({ src, index: i });
-      img.onerror = () => { idx++; tentar(); };
+      img.onload = () => {
+        resolve({ src, index: i, encontrado: true });
+      };
+
+      img.onerror = () => {
+        idx++;
+        falhasSeguidas++;
+
+        // 🔥 se 3 extensões falharem, encerra imediatamente
+        if (falhasSeguidas >= extensoes.length) {
+          return resolve({ encontrado: false, i });
+        }
+
+        tentar();
+      };
 
       img.src = src;
     }
@@ -697,11 +713,27 @@ async function carregarTodas() {
 
   await carregarLegendas();
   
-  const res = await Promise.all(
-    Array.from({ length: 50 }, (_, i) => carregarImagem(i + 1))
-  );
+  const validos = [];
+  const limiteFalhas = 3;
 
-  const validos = res.filter(Boolean);
+  let falhasSeguidas = 0;
+
+  for (let i = 1; i <= 9999; i++) { // limite alto de segurança
+    const img = await carregarImagem(i);
+
+    if (img.encontrado) {
+      validos.push(img);
+      falhasSeguidas = 0; // reset ao achar imagem
+    } else {
+      falhasSeguidas++;
+    }
+
+    // 🔥 condição de parada: 3 seguidas não encontradas
+    if (falhasSeguidas >= limiteFalhas) {
+      break;
+    }
+  }
+
   imagensCarregadas = validos; // salva para navegação por setas
 
   // 3. LIMPA skeletons de forma segura
