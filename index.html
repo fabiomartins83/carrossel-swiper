@@ -43,6 +43,7 @@ body {
   align-items: center;
   padding: 0;
   margin: 0;
+  position: relative; /* âncora para o #loading */
 }
 
 .swiper {
@@ -163,32 +164,28 @@ body {
 ========================= */
 #loading {
   position: absolute;
-  width: 100%;
-  height: var(--altura-carrossel);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  width: 60%; /* calc(100% - 4%); desconta o padding do #pagina (2% de cada lado) */
+  height: 100%;
   background: #222;
   z-index: 10;
-  color: #CFCFCF;
   overflow: hidden;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #loading::after {
   content: "";
   position: absolute;
-  top: 0;
-  left: -150%;
-  width: 150%;
-  height: 100%;
+  inset: 0;
   background: linear-gradient(
     90deg,
-    transparent,
-    rgba(255,255,255,0.06),
-    transparent
+    transparent 0%,
+    rgba(255,255,255,0.08) 50%,
+    transparent 100%
   );
-  animation: shimmer 1.2s infinite;
+  animation: shimmer-loading 1.4s infinite;
 }
 
 .spinner {
@@ -278,6 +275,11 @@ body {
   100% {
     transform: translateX(100%);
   }
+}
+
+@keyframes shimmer-loading {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 </style>
@@ -599,8 +601,8 @@ async function carregarTodas() {
   const containerCarrossel = document.getElementById("container-carrossel");
   containerCarrossel.classList.add("loading");
 
-  // criarSkeletons(4);
-  loading.style.display = "none";
+  criarSkeletons(1);
+  // loading é ocultado apenas após o carregamento (no final da função)
 
   await carregarLegendas();
   
