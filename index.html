@@ -164,7 +164,6 @@ body {
 ========================= */
 #loading {
   position: absolute;
-  width: 60%; /* calc(100% - 4%); desconta o padding do #pagina (2% de cada lado) */
   height: 100%;
   background: #222;
   z-index: 10;
@@ -173,6 +172,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  inset: 0;
 }
 
 #loading::after {
@@ -294,14 +294,14 @@ body {
 
     <!-- 🔥 CARROSSEL (TOPO 50%) -->
     <div id="container-carrossel">
-      <div id="loading">
-        <div class="spinner"></div>
-        <!-- <p>Carregando...</p> -->
-      </div>
       <div class="swiper">
-          <div class="swiper-wrapper" id="slides"></div>
-          <div class="swiper-button-next"></div>
-          <div class="swiper-button-prev"></div>
+        <div id="loading">
+          <div class="spinner"></div>
+          <!-- <p>Carregando...</p> -->
+        </div>
+        <div class="swiper-wrapper" id="slides"></div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
       </div>
     </div>
 
