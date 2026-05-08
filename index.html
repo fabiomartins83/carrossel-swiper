@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carrossel com Swiper</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+
+<style>
+body {
+  margin: 0;
+  background: #111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: Arial;
+}
+
+.swiper {
+  width: 80%;
+  max-width: 1000px;
+
+  /* 🔥 fixa proporção paisagem real */
+  aspect-ratio: 16 / 9;
+
+  border-radius: 12px;
+  overflow: hidden;
+
+  display: flex;
+}
+
+/* 🔥 ESSENCIAL: Swiper precisa preencher altura */
+.swiper-wrapper {
+  height: 100%;
+}
+
+.swiper-slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #000;
+  height: 100%;
+  transform: scale(0.78); /* 🔥 diminui todos os slides */
+  transition: transform 0.3s ease;
+}
+
+.swiper-slide-active {
+  transform: scale(1); /* central maior */
+  z-index: 2;
+}
+
+/* imagem ajustada corretamente */
+.swiper-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* mantém “cinema/paisagem” */
+}
+
+.legenda {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 10px;
+  color: #fff;
+  background: rgba(0,0,0,0.5);
+  text-align: center;
+  font-size: 14px;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  color: #fff;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.modal img {
+  max-width: 90%;
+  max-height: 90%;
+  transform-origin: center;
+  will-change: transform;
+  cursor: grab;
+  user-select: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="swiper">
+  <div class="swiper-wrapper" id="slides"></div>
+  <div class="swiper-button-next"></div>
+  <div class="swiper-button-prev"></div>
+</div>
+
+<div id="modal" class="modal">
+  <img id="modalImg">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<script>
+const extensoes = ["jpg","jpeg","webp","gif","png"];
+const container = document.getElementById("slides");
+const modal = document.getElementById("modal");
+const modalImg = document.getElementById("modalImg");
+
+let swiper = null;
+
+// zoom/pan
+const ZOOM_AMOUNT = 2.5;
+let scale = 1;
+const minScale = 1;
+const maxScale = 5;
+
+let x = 0, y = 0;
+
+// controle de interação
+let isHolding = false;
+let isDragging = false;
+
+let holdTimer = null;
+const HOLD_DELAY = 150;
+
+let lastX = 0, lastY = 0;
+let startX = 0, startY = 0;
+
+let velocityX = 0;
+let velocityY = 0;
+
+let raf = null;
+let currentIndex = 0;
+
+/* --------------------------
+   CLAMP (limite de pan)
+---------------------------*/
+function clampPan() {
+  if (!modalImg.naturalWidth) return;
+
+  const vw = modal.clientWidth;
+  const vh = modal.clientHeight;
+
+  const renderedW = modalImg.offsetWidth * scale;
+  const renderedH = modalImg.offsetHeight * scale;
+
+  const maxX = Math.max(0, (renderedW - vw) / 2);
+  const maxY = Math.max(0, (renderedH - vh) / 2);
+
+  x = Math.min(maxX, Math.max(-maxX, x));
+  y = Math.min(maxY, Math.max(-maxY, y));
+}
+
+/* --------------------------
+   RENDER
+---------------------------*/
+function render() {
+  clampPan();
+  modalImg.style.transform =
+    `translate3d(${x}px,${y}px,0) scale(${scale})`;
+}
+
+/* --------------------------
+   RESET
+---------------------------*/
+function reset() {
+  scale = 1;
+  x = 0;
+  y = 0;
+  velocityX = 0;
+  velocityY = 0;
+  isHolding = false;
+  isDragging = false;
+  modalImg.style.cursor = "zoom-in";
+  modalImg.style.transition = "";
+  render();
+}
+
+/* --------------------------
+   ZOOM
+---------------------------*/
+function zoomAt(cx, cy, newScale) {
+  const rect = modal.getBoundingClientRect();
+
+  const mx = cx - rect.left - rect.width / 2;
+  const my = cy - rect.top - rect.height / 2;
+
+  const k = newScale / scale;
+
+  x = mx - k * (mx - x);
+  y = my - k * (my - y);
+  scale = newScale;
+}
+
+function animateZoomIn(cx, cy) {
+  modalImg.style.transition = "transform 0.2s ease";
+  zoomAt(cx, cy, ZOOM_AMOUNT);
+  render();
+  setTimeout(() => modalImg.style.transition = "", 200);
+}
+
+function animateZoomOut() {
+  modalImg.style.transition = "transform 0.25s ease";
+  scale = 1;
+  x = 0;
+  y = 0;
+  render();
+  setTimeout(() => modalImg.style.transition = "", 250);
+}
+
+/* --------------------------
+   ABRIR / FECHAR
+---------------------------*/
+function abrirModal(src, index) {
+  modal.style.display = "flex";
+  modalImg.src = src;
+  currentIndex = index;
+
+  modalImg.onload = () => reset();
+
+  swiper?.autoplay.stop();
+}
+
+function fecharModal() {
+  modal.style.display = "none";
+
+  stopInertia();
+  reset();
+
+  swiper?.autoplay.start();
+}
+
+/* --------------------------
+   ZOOM (WHEEL)
+---------------------------*/
+modal.addEventListener("wheel", e => {
+  e.preventDefault();
+
+  const newScale = Math.min(
+    maxScale,
+    Math.max(minScale, scale * (1 - e.deltaY * 0.001))
+  );
+
+  zoomAt(e.clientX, e.clientY, newScale);
+  render();
+}, { passive: false });
+
+/* --------------------------
+   MOUSEDOWN
+---------------------------*/
+modalImg.addEventListener("mousedown", e => {
+  e.preventDefault();
+
+  isHolding = true;
+  isDragging = false;
+
+  startX = lastX = e.clientX;
+  startY = lastY = e.clientY;
+
+  velocityX = 0;
+  velocityY = 0;
+
+  if (scale <= minScale) {
+    holdTimer = setTimeout(() => {
+      if (isHolding) {
+        animateZoomIn(startX, startY);
+        modalImg.style.cursor = "grab";
+      }
+    }, HOLD_DELAY);
+  } else {
+    modalImg.style.cursor = "grabbing";
+  }
+});
+
+/* --------------------------
+   MOUSEMOVE
+---------------------------*/
+window.addEventListener("mousemove", e => {
+  if (!isHolding) return;
+
+  const dx = e.clientX - lastX;
+  const dy = e.clientY - lastY;
+
+  const totalDx = e.clientX - startX;
+  const totalDy = e.clientY - startY;
+
+  if (Math.abs(totalDx) > 4 || Math.abs(totalDy) > 4) {
+    isDragging = true;
+    clearTimeout(holdTimer);
+  }
+
+  if (scale > minScale) {
+    x += dx;
+    y += dy;
+
+    velocityX = dx;
+    velocityY = dy;
+
+    render();
+    modalImg.style.cursor = "grabbing";
+  }
+
+  lastX = e.clientX;
+  lastY = e.clientY;
+});
+
+/* --------------------------
+   MOUSEUP
+---------------------------*/
+window.addEventListener("mouseup", () => {
+  if (!isHolding) return;
+
+  clearTimeout(holdTimer);
+
+  isHolding = false;
+  isDragging = false;
+
+  stopInertia();
+
+  animateZoomOut();
+  modalImg.style.cursor = "zoom-in";
+});
+
+/* --------------------------
+   INÉRCIA
+---------------------------*/
+function startInertia() {
+  stopInertia();
+
+  function step() {
+    if (Math.abs(velocityX) < 0.3 && Math.abs(velocityY) < 0.3) {
+      stopInertia();
+      return;
+    }
+
+    x += velocityX;
+    y += velocityY;
+
+    velocityX *= 0.90;
+    velocityY *= 0.90;
+
+    render();
+    raf = requestAnimationFrame(step);
+  }
+
+  raf = requestAnimationFrame(step);
+}
+
+function stopInertia() {
+  if (raf) cancelAnimationFrame(raf);
+  raf = null;
+}
+
+/* --------------------------
+   SWIPER / IMAGENS
+---------------------------*/
+async function carregarImagem(i) {
+  return new Promise(resolve => {
+    let idx = 0;
+
+    function tentar() {
+      if (idx >= extensoes.length) return resolve(null);
+
+      const src = `img/imagem${i}.${extensoes[idx]}`;
+      const img = new Image();
+
+      img.onload = () => resolve({ src, index: i });
+      img.onerror = () => { idx++; tentar(); };
+
+      img.src = src;
+    }
+
+    tentar();
+  });
+}
+
+async function carregarTodas() {
+  const res = await Promise.all(
+    Array.from({ length: 50 }, (_, i) => carregarImagem(i + 1))
+  );
+
+  const validos = res.filter(Boolean);
+
+  validos.forEach(img => {
+    const slide = document.createElement("div");
+    slide.className = "swiper-slide";
+
+    const el = document.createElement("img");
+    el.src = img.src;
+
+    const leg = document.createElement("div");
+    leg.className = "legenda";
+    leg.textContent = `Imagem ${img.index}`;
+
+    el.onclick = () => abrirModal(img.src, img.index);
+
+    slide.appendChild(el);
+    slide.appendChild(leg);
+    container.appendChild(slide);
+  });
+
+  swiper = new Swiper('.swiper', {
+    loop: true,
+    autoplay: { delay: 5000 },
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev'
+    },
+    speed: 600,
+
+    effect: "coverflow",
+    centeredSlides: true,
+    slidesPerView: 1.4,
+
+    coverflowEffect: {
+      rotate: 0,
+      stretch: -40,
+      depth: 80,
+      modifier: 1.4,
+      slideShadows: false
+    }
+  });
+}
+
+/* --------------------------
+   FECHAR MODAL
+---------------------------*/
+modal.onclick = e => {
+  if (e.target === modal) fecharModal();
+};
+
+window.addEventListener("keydown", e => {
+  if (e.key === "Escape") fecharModal();
+});
+
+/* --------------------------
+   START
+---------------------------*/
+carregarTodas();
+</script>
+
+</body>
+</html>
