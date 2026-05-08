@@ -68,6 +68,7 @@ body {
   transform: none; /* scale(0.7); */
   transition: transform 0.3s ease;
   box-sizing: border-box;
+  position: relative;
 }
 
 .swiper-slide-active {
@@ -91,8 +92,6 @@ body {
 
 .legenda {
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
   width: fit-content;
   min-width: 0;
   max-width: 100%;
@@ -103,6 +102,10 @@ body {
   font-size: 14px;
   box-sizing: border-box;
   white-space: nowrap;
+  bottom: 0;
+  width: 100%;
+  left: 0; /*50%;
+  transform: translateX(-50%); */
 }
 
 .swiper-button-next,
@@ -424,6 +427,17 @@ let imagensCarregadas = []; // lista global para navegação por setas
 let legendasMap = {};
 
 /* --------------------------
+   NORMALIZAR STRING
+---------------------------*/
+function normalizarNome(nome) {
+  return (nome || "")
+    .split("/").pop()      // remove caminho
+    .split("?")[0]         // remove querystring
+    .trim()
+    .toLowerCase();
+}
+
+/* --------------------------
    CLAMP (limite de pan)
 ---------------------------*/
 function clampPan() {
@@ -703,14 +717,16 @@ async function carregarTodas() {
     const leg = document.createElement("div");
     leg.className = "legenda";
 
-    const nomeArquivo = img.src.split("/").pop();
+    const nomeArquivo = normalizarNome(img.src);
     const info = legendasMap[nomeArquivo];
 
     if (info) {
-      const legenda = info.legenda?.trim();
-      const creditos = info.creditos?.trim();
+      const textoLegenda = info.legenda?.trim();
+      const textoCreditos = info.creditos
+        ? `Imagem: ${info.creditos.trim()}`
+        : "";
 
-      leg.textContent = [legenda, creditos]
+      leg.textContent = [textoLegenda, textoCreditos]
         .filter(Boolean)
         .join(" / ");
     } else {
@@ -801,11 +817,14 @@ window.addEventListener("keydown", e => {
 
 function navegarModal(idx) {
   const img = imagensCarregadas[idx];
-  const nomeArquivo = img.src.split("/").pop();
+  const nomeArquivo = normalizarNome(img.src);
   const info = legendasMap[nomeArquivo];
 
   const legenda = info
-    ? [info.legenda?.trim(), info.creditos?.trim()].filter(Boolean).join(" / ")
+    ? [
+        info.legenda?.trim(),
+        info.creditos ? `Imagem: ${info.creditos.trim()}` : ""
+      ].filter(Boolean).join(" / ")
     : nomeArquivo;
 
   abrirModal(img.src, img.index, legenda);
@@ -816,34 +835,53 @@ function navegarModal(idx) {
 ---------------------------*/
 async function carregarLegendas() {
   try {
-    const res = await fetch("imagens.json");
+    const url = new URL("./img/imagens.json", window.location.href);
+    const res = await fetch(url.href);
 
-    // Se o arquivo não existir ou der erro HTTP
     if (!res.ok) {
-      console.warn("imagens.json não encontrado. Usando fallback sem legendas.");
+      console.warn("JSON não encontrado:", res.status);
       legendasMap = {};
       return;
     }
 
     const index = await res.json();
 
-    // garante que é array válido
     if (!Array.isArray(index)) {
-      console.warn("imagens.json inválido. Usando fallback.");
+      console.warn("JSON inválido");
       legendasMap = {};
       return;
     }
 
+    legendasMap = {};
+
     index.forEach(item => {
-      legendasMap[item.nome_arquivo] = item;
+
+      // 🔥 ACEITA VÁRIOS NOMES DE COLUNA
+      const nome =
+        item.nome_arquivo ||
+        item.nomearquivo ||
+        item.nomeArquivo ||
+        item.filename ||
+        item.file ||
+        "";
+
+      const chave = normalizarNome(nome);
+
+      if (!chave) return;
+
+      legendasMap[chave] = {
+        legenda: item.legenda || item.descricao || "",
+        creditos: item.creditos || item.credito || item.author || ""
+      };
     });
 
+    console.log("MAPA FINAL:", legendasMap);
+
   } catch (err) {
-    console.warn("Falha ao carregar imagens.json. Usando fallback:", err);
+    console.error("Erro ao carregar JSON:", err);
     legendasMap = {};
   }
 }
-
 /* --------------------------
    CARREGAMENTO DO SKELETON
 ---------------------------*/

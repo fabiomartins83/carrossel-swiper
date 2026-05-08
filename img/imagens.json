@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "nomearquivo": "imagem1.jpg",
+    "legenda": "Escola de Comunicações e Artes da USP (ECA-USP)",
+    "creditos": "Fabio Martins",
+    "obs": ""
+  },
+  {
+    "id": 2,
+    "nomearquivo": "imagem2.jpg",
+    "legenda": "Escola de Comunicações e Artes da USP (ECA-USP)",
+    "creditos": "Fabio Martins",
+    "obs": ""
+  },
+  {
+    "id": 3,
+    "nomearquivo": "imagem3.jpg",
+    "legenda": "Escola de Comunicações e Artes da USP (ECA-USP)",
+    "creditos": "Fabio Martins",
+    "obs": ""
+  },
+  {
+    "id": 4,
+    "nomearquivo": "imagem4.jpg",
+    "legenda": "Escola de Comunicações e Artes da USP (ECA-USP)",
+    "creditos": "Fabio Martins",
+    "obs": ""
+  },
+  {
+    "id": 5,
+    "nomearquivo": "imagem5.jpg",
+    "legenda": "Escola de Comunicações e Artes da USP (ECA-USP)",
+    "creditos": "Fabio Martins",
+    "obs": ""
+  },
+  {
+    "id": 6,
+    "nomearquivo": "imagem6.jpg",
+    "legenda": "Escola de Comunicações e Artes da USP (ECA-USP)",
+    "creditos": "Fabio Martins",
+    "obs": ""
+  },
+  {
+    "id": 7,
+    "nomearquivo": "imagem7.jpg",
+    "legenda": "Escola de Comunicações e Artes da USP (ECA-USP)",
+    "creditos": "Fabio Martins",
+    "obs": ""
+  },
+  {
+    "id": 8,
+    "nomearquivo": "imagem8.jpg",
+    "legenda": "Escola de Comunicações e Artes da USP (ECA-USP)",
+    "creditos": "Fabio Martins",
+    "obs": ""
+  }
+]
