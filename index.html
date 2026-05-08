@@ -8,27 +8,46 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
 
 <style>
+:root {
+  --altura-carrossel: 40vh;
+}
+
 body {
   margin: 0;
   background: #111;
+  font-family: Arial;
+  color:#CFCFCF;
+  display: block; /*flex; */
+/*
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+*/
+}
+
+/* =========================
+   CONTAINER DO CARROSSEL
+========================= */
+#container-carrossel {
+  width: 100%;
+  height: var(--altura-carrossel);
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  font-family: Arial;
 }
 
 .swiper {
-  width: 80%;
-  max-width: 1000px;
-
-  /* 🔥 fixa proporção paisagem real */
-  aspect-ratio: 16 / 9;
-
-  border-radius: 12px;
-  overflow: hidden;
-
+  width: 75%;
+  max-width: 900px;
+  /* 🔥 AGORA o container manda no tamanho */
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  overflow: hidden;/*
   display: flex;
+  height: 100%;
+*/
 }
 
 /* 🔥 ESSENCIAL: Swiper precisa preencher altura */
@@ -40,9 +59,9 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #000;
+  background: transparent; /*#000; */
   height: 100%;
-  transform: scale(0.78); /* 🔥 diminui todos os slides */
+  transform: scale(0.70); /*scale(0.78);  🔥 diminui todos os slides */
   transition: transform 0.3s ease;
 }
 
@@ -82,7 +101,7 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  overflow: hidden;
+  /*overflow: hidden; */
 }
 
 .modal img {
@@ -93,19 +112,56 @@ body {
   cursor: grab;
   user-select: none;
 }
+
+/* =========================
+   CONTEÚDO ABAIXO
+========================= */
+#container-conteudo {
+  width: 90%;
+  margin: 40px auto 0 auto;  /* 🔥 5% lateral (90% width) */
+  text-align: left;
+}
+
+#texto {
+    text-align: center;
+}
+
+/* garante que futuros blocos NÃO herdem centralização */
+#container-conteudo > div:not(#texto) {
+  text-align: left;
+}
+
+#pagina {
+  padding: 2%;
+  box-sizing: border-box;
+}
 </style>
 </head>
 
 <body>
 
-<div class="swiper">
-  <div class="swiper-wrapper" id="slides"></div>
-  <div class="swiper-button-next"></div>
-  <div class="swiper-button-prev"></div>
-</div>
+<div id="pagina">
+    <!-- 🔥 CARROSSEL (TOPO 50%) -->
+    <div id="container-carrossel">
+    <div class="swiper">
+        <div class="swiper-wrapper" id="slides"></div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+    </div>
+    </div>
 
-<div id="modal" class="modal">
-  <img id="modalImg">
+    <!-- 🔥 CONTEÚDO (ABAIXO) -->
+    <div id="container-conteudo">
+        <div id="texto">
+            <h1>Galeria de Fotos</h1>
+            <p>Galeria de fotos criada com biblioteca Swiper.js</p>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div id="modal" class="modal">
+        <img id="modalImg">
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
@@ -421,6 +477,7 @@ async function carregarTodas() {
     effect: "coverflow",
     centeredSlides: true,
     slidesPerView: 1.4,
+    spaceBetween: 15,
 
     coverflowEffect: {
       rotate: 0,
