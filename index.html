@@ -139,6 +139,9 @@ body {
   text-align: left;
 }
 
+/* =========================
+   ESTRUTURA DA PÁGINA
+========================= */
 #pagina {
   padding: 2%;
   box-sizing: border-box;
@@ -153,6 +156,36 @@ body {
   margin: 0;
   color: #CFCFCF;
 }
+
+/* =========================
+   ANIMAÇÃO DE CARREGAMENTO 
+========================= */
+#loading {
+  position: absolute;
+  width: 100%;
+  height: var(--altura-carrossel);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #111;
+  z-index: 10;
+  color: #CFCFCF;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #444;
+  border-top: 4px solid #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 </style>
 </head>
 
@@ -165,11 +198,15 @@ body {
 
     <!-- 🔥 CARROSSEL (TOPO 50%) -->
     <div id="container-carrossel">
-    <div class="swiper">
-        <div class="swiper-wrapper" id="slides"></div>
-        <div class="swiper-button-next"></div>
-        <div class="swiper-button-prev"></div>
-    </div>
+      <div id="loading">
+        <div class="spinner"></div>
+        <p>Carregando...</p>
+      </div>
+      <div class="swiper">
+          <div class="swiper-wrapper" id="slides"></div>
+          <div class="swiper-button-next"></div>
+          <div class="swiper-button-prev"></div>
+      </div>
     </div>
 
     <!-- 🔥 CONTEÚDO (ABAIXO) -->
@@ -192,6 +229,7 @@ const extensoes = ["jpg","jpeg","webp","gif","png"];
 const container = document.getElementById("slides");
 const modal = document.getElementById("modal");
 const modalImg = document.getElementById("modalImg");
+const loading = document.getElementById("loading");
 
 let swiper = null;
 
@@ -464,6 +502,7 @@ async function carregarImagem(i) {
 }
 
 async function carregarTodas() {
+  loading.style.display = "flex";
   await carregarLegendas();
   const res = await Promise.all(
     Array.from({ length: 50 }, (_, i) => carregarImagem(i + 1))
@@ -483,9 +522,16 @@ async function carregarTodas() {
 
     const nomeArquivo = img.src.split("/").pop();
     const info = legendasMap[nomeArquivo];
-    leg.textContent = info
-      ? `${info.legenda || ""}${info.creditos ? " / " + info.creditos : ""}`.trim()
-      : nomeArquivo;
+    if (info) {
+      const legenda = info.legenda?.trim();
+      const creditos = info.creditos?.trim();
+
+      leg.textContent = [legenda, creditos]
+        .filter(Boolean)
+        .join(" / ");
+    } else {
+      leg.textContent = nomeArquivo;
+    }
 
     el.onclick = () => abrirModal(img.src, img.index);
 
@@ -516,6 +562,7 @@ async function carregarTodas() {
       slideShadows: false
     }
   });
+  loading.style.display = "none";
 }
 
 /* --------------------------
