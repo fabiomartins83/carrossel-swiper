@@ -219,6 +219,8 @@ let velocityY = 0;
 let raf = null;
 let currentIndex = 0;
 
+let legendasMap = {};
+
 /* --------------------------
    CLAMP (limite de pan)
 ---------------------------*/
@@ -462,6 +464,7 @@ async function carregarImagem(i) {
 }
 
 async function carregarTodas() {
+  await carregarLegendas();
   const res = await Promise.all(
     Array.from({ length: 50 }, (_, i) => carregarImagem(i + 1))
   );
@@ -477,7 +480,12 @@ async function carregarTodas() {
 
     const leg = document.createElement("div");
     leg.className = "legenda";
-    leg.textContent = `Imagem ${img.index}`;
+
+    const nomeArquivo = img.src.split("/").pop();
+    const info = legendasMap[nomeArquivo];
+    leg.textContent = info
+      ? `${info.legenda || ""}${info.creditos ? " / " + info.creditos : ""}`.trim()
+      : nomeArquivo;
 
     el.onclick = () => abrirModal(img.src, img.index);
 
@@ -520,6 +528,39 @@ modal.onclick = e => {
 window.addEventListener("keydown", e => {
   if (e.key === "Escape") fecharModal();
 });
+
+/* --------------------------
+   CARREGAMENTO DE LEGENDA
+---------------------------*/
+async function carregarLegendas() {
+  try {
+    const res = await fetch("imagens.json");
+
+    // Se o arquivo não existir ou der erro HTTP
+    if (!res.ok) {
+      console.warn("imagens.json não encontrado. Usando fallback sem legendas.");
+      legendasMap = {};
+      return;
+    }
+
+    const index = await res.json();
+
+    // garante que é array válido
+    if (!Array.isArray(index)) {
+      console.warn("imagens.json inválido. Usando fallback.");
+      legendasMap = {};
+      return;
+    }
+
+    index.forEach(item => {
+      legendasMap[item.nome_arquivo] = item;
+    });
+
+  } catch (err) {
+    console.warn("Falha ao carregar imagens.json. Usando fallback:", err);
+    legendasMap = {};
+  }
+}
 
 /* --------------------------
    START
