@@ -9,7 +9,13 @@
 
 <style>
 :root {
-  --altura-carrossel: 40vh;
+  --altura-carrossel: 60vh;
+  --padding-container: 2%;
+}
+
+*, html, p {
+  margin: 0;
+  padding: 0;
 }
 
 body {
@@ -35,6 +41,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 0;
+  margin: 0;
 }
 
 .swiper {
@@ -118,7 +126,7 @@ body {
 ========================= */
 #container-conteudo {
   width: 90%;
-  margin: 40px auto 0 auto;  /* 🔥 5% lateral (90% width) */
+  padding: var(--padding-container);  
   text-align: left;
 }
 
@@ -135,12 +143,26 @@ body {
   padding: 2%;
   box-sizing: border-box;
 }
+
+#titulo {
+  text-align: center;
+  margin: 0 0 20px;
+}
+
+#titulo h1 {
+  margin: 0;
+  color: #CFCFCF;
+}
 </style>
 </head>
 
 <body>
 
 <div id="pagina">
+    <div id="titulo">
+        <h1>Galeria de fotos</h1>
+    </div>
+
     <!-- 🔥 CARROSSEL (TOPO 50%) -->
     <div id="container-carrossel">
     <div class="swiper">
@@ -153,7 +175,6 @@ body {
     <!-- 🔥 CONTEÚDO (ABAIXO) -->
     <div id="container-conteudo">
         <div id="texto">
-            <h1>Galeria de Fotos</h1>
             <p>Galeria de fotos criada com biblioteca Swiper.js</p>
         </div>
     </div>
