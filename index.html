@@ -1,11 +1,19 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Carrossel com Swiper</title>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+  <meta charset="UTF-8">
+  <meta name="description" content="">
+  <meta name="author" content="Fabio de Almeida Martins">
+  <meta name="copyright" content="© 2026 - Direitos Reservados - Fabio de Almeida Martins ">
+  <meta name="reply-to" content="fabio.martins@husp.br">
+  <meta name="robots" content="noindex,nofollow"> <!-- tag SEO para search bots -->
+  <meta name="googlebot" content="noindex,nofollow"> <!-- tag SEO para Googlebot -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- tag para responsividad, ajusta o viewport para preencher toda a largura do dispositivo em escala inicial 1.0 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrossel com Swiper</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+  <link rel="shortcut icon" href="./img/favicon.ico" type="image/x-icon"> <!-- tag para incluir ícone do site "img/favicon.ico" -->
+  <link type="text/css" rel="stylesheet" charset="utf-8" href="style.css">
 
 <style>
 :root {
@@ -430,50 +438,47 @@ body {
   0%   { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
 }
-
 </style>
+
 </head>
 
 <body>
 
-<div id="pagina">
+  <div id="pagina">
 
-  <div id="titulo">
-    <h1>Galeria de fotos</h1>
-  </div>
-
-  <div id="container-carrossel">
-    <div class="swiper">
-      <div id="loading">
-        <div class="spinner"></div>
+    <div id="titulo">
+      <h1>Galeria de fotos</h1>
+    </div>
+    <div id="container-carrossel">
+      <div class="swiper">
+        <div id="loading">
+          <div class="spinner"></div>
+        </div>
+        <div class="swiper-wrapper" id="slides"></div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
       </div>
-      <div class="swiper-wrapper" id="slides"></div>
-      <div class="swiper-button-next"></div>
-      <div class="swiper-button-prev"></div>
+    </div>
+    <div id="container-conteudo">
+      <div id="texto">
+        <p><b>Galeria de fotos criada com biblioteca Swiper.js</b></p>
+      </div>
     </div>
   </div>
-
-  <div id="container-conteudo">
-    <div id="texto">
-      <p><b>Galeria de fotos criada com biblioteca Swiper.js</b></p>
+  <div id="rodape" class="rodape">  2026 - Fabio de Almeida Martins - Direitos reservados  </div>
+  <div id="modal" class="modal">
+    <div class="modal-conteudo">
+      <button class="modal-fechar" onclick="fecharModal()"></button>
+      <img id="modalImg">
+      <button class="modal-nav modal-prev"></button>
+      <button class="modal-nav modal-next"></button>
+      <div id="modalLegenda" class="modal-legenda"></div>
     </div>
   </div>
-
-</div>
-
-<div id="rodape" class="rodape">  2026 - Fabio de Almeida Martins - Direitos reservados  </div>
-
-<div id="modal" class="modal">
-  <div class="modal-conteudo">
-    <button class="modal-fechar" onclick="fecharModal()"></button>
-    <img id="modalImg">
-    <button class="modal-nav modal-prev"></button>
-    <button class="modal-nav modal-next"></button>
-    <div id="modalLegenda" class="modal-legenda"></div>
-  </div>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="scripts.js" defer></script>
+
 
 <script>
 const extensoes = ["jpg","jpeg","webp","gif","png"];
