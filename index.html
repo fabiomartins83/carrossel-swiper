@@ -426,6 +426,20 @@ body {
   opacity: 0;
 }
 
+/* escondidas durante loading/skeleton */
+#container-carrossel.loading .swiper-button-next,
+#container-carrossel.loading .swiper-button-prev {
+  opacity: 0;
+  pointer-events: none;
+  display: none;
+}
+
+/* visíveis somente após carregamento */
+#container-carrossel:not(.loading) .swiper-button-next,
+#container-carrossel:not(.loading) .swiper-button-prev {
+  display: flex;
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -873,9 +887,9 @@ async function carregarTodas() {
       slideShadows: false
     }
   });
-
   requestAnimationFrame(() => {
     loading.classList.add("hidden");
+    containerCarrossel.classList.remove("loading"); // garante exibição das setas
     setTimeout(() => loading.style.display = "none", 400);
   });
 }
