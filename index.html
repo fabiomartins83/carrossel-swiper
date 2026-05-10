@@ -209,23 +209,33 @@ body {
   font-family: swiper-icons;
 }
 .swiper-button-next,
-.swiper-button-prev {
-  transition: transform 0.15s ease, background 0.2s ease;
+.swiper-button-prev,
+.modal-nav, 
+.modal-fechar {
   width: 48px;
   height: 48px;
 }
+.swiper-button-next,
+.swiper-button-prev {
+  transition: transform 0.15s ease, background 0.2s ease;
+}
 .modal-nav, .modal-fechar {
   transition: background 0.2s ease, opacity 0.2s ease;
-  width: 40px;
-  height: 40px;
 }
 .swiper-button-next::after,
 .swiper-button-prev::after,
 .modal-nav::after,
 .modal-fechar::after {
-  font-size: 22px;
   font-weight: 900;
-  color: #fff;
+  color: #FAFAFA;
+}
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 22px;
+}
+.modal-nav::after,
+.modal-fechar::after {
+  font-size: 22px;
 }
 .swiper-button-next:hover,
 .swiper-button-prev:hover,
@@ -243,7 +253,8 @@ body {
 }
 .modal-fechar:active {
   transform: scale(0.95); /* 🔥 sem translateY */
-}.modal-nav:active {
+}
+.modal-nav:active {
   transform: translateY(-50%); /* mantém fixo */
   background: rgba(0,0,0,0.7); /* 🔥 mantém mesma cor do hover */
 }
@@ -252,7 +263,6 @@ body {
   top: 50%;
   transform: translateY(-50%) scale(1); /* 🔥 inclui scale base */
   z-index: 10001;
-  transition: none;
 }
 .modal-fechar.oculto,
 .modal-legenda.oculto,
@@ -776,9 +786,9 @@ function startInertia() {
 async function carregarImagem(i) {
   return new Promise(resolve => {
     let idx = 0;
-    let falhasSeguidas = 0;
 
     function tentar() {
+      // 🔥 terminou todas as extensões e não achou
       if (idx >= extensoes.length) {
         return resolve({ encontrado: false, i });
       }
@@ -787,18 +797,13 @@ async function carregarImagem(i) {
       const img = new Image();
 
       img.onload = () => {
+        // 🔥 achou → encerra imediatamente
         resolve({ src, index: i, encontrado: true });
       };
 
       img.onerror = () => {
+        // 🔥 tenta próxima extensão
         idx++;
-        falhasSeguidas++;
-
-        // 🔥 se 3 extensões falharem, encerra imediatamente
-        if (falhasSeguidas >= extensoes.length) {
-          return resolve({ encontrado: false, i });
-        }
-
         tentar();
       };
 
@@ -835,7 +840,6 @@ async function carregarTodas() {
   containerCarrossel.classList.add("loading");
 
   criarSkeletons(1);
-  // loading é ocultado apenas após o carregamento (no final da função)
 
   try {
     await carregarLegendas();
@@ -845,28 +849,26 @@ async function carregarTodas() {
   
   const validos = [];
   const limiteFalhas = 3;
-
   let falhasSeguidas = 0;
 
-  for (let i = 1; i <= 9999; i++) { // limite alto de segurança
+  for (let i = 1; i <= 9999; i++) {
     const img = await carregarImagem(i);
 
     if (img.encontrado) {
       validos.push(img);
-      falhasSeguidas = 0; // reset ao achar imagem
+      falhasSeguidas = 0; // 🔥 reset ao encontrar imagem válida
     } else {
-      falhasSeguidas++;
+      falhasSeguidas++; // 🔥 falha de índice (imagem inexistente)
     }
 
-    // 🔥 condição de parada: 3 seguidas não encontradas
+    // 🔥 encerra após 3 imagens consecutivas não encontradas
     if (falhasSeguidas >= limiteFalhas) {
       break;
     }
   }
 
-  imagensCarregadas = validos; // salva para navegação por setas
+  imagensCarregadas = validos;
 
-  // 3. LIMPA skeletons de forma segura
   container.innerHTML = "";
 
   validos.forEach(img => {
@@ -909,7 +911,6 @@ async function carregarTodas() {
     container.appendChild(slide);
   });
 
-  // 5. DESTROI swiper antigo (se existir)
   if (swiper) {
     swiper.destroy(true, true);
     swiper = null;
@@ -923,20 +924,19 @@ async function carregarTodas() {
       prevEl: '.swiper-button-prev'
     },
     speed: 600,
-
     effect: "coverflow",
     centeredSlides: true,
     slidesPerView: "auto",
     spaceBetween: 40,
-
     coverflowEffect: {
       rotate: 0,
-      stretch: -40, /* compensa o espaço vazio do scale(0.70) */
+      stretch: -40,
       depth: 100,
       modifier: 2.0,
       slideShadows: false
     }
   });
+
   requestAnimationFrame(() => {
     loading.classList.add("hidden");
     setTimeout(() => loading.style.display = "none", 400);
