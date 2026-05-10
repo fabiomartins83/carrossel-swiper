@@ -37,14 +37,9 @@ body {
   background: var(--pagebkgd);
   font-family: Arial;
   color: var(--pagetextcolor);
-  display: flex; /*block; */
+  display: flex;
   flex-direction: column;
   min-height: 100vh;
-/*
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-*/
 }
 
 /* =========================
@@ -70,7 +65,7 @@ body {
   align-items: center;
   padding: 0;
   margin: 0;
-  position: relative; /* âncora para o #loading */
+  position: relative;
 }
 
 .swiper {
@@ -80,7 +75,6 @@ body {
   overflow: hidden;
 }
 
-/* 🔥 ESSENCIAL: Swiper precisa preencher altura */
 .swiper-wrapper {
   height: var(--altura-carrossel);
 }
@@ -92,7 +86,7 @@ body {
   background: transparent;
   height: var(--altura-carrossel);
   width: auto;
-  transform: none; /* scale(0.7); */
+  transform: none;
   transition: transform 0.3s ease;
   box-sizing: border-box;
   position: relative;
@@ -103,12 +97,10 @@ body {
   z-index: 2;
 }
 
-/* wrapper interno que abraça a imagem */
 .swiper-slide > img {
   display: block;
 }
 
-/* imagem ajustada corretamente */
 .swiper-slide img {
   max-width: 100%;
   max-height: var(--altura-carrossel);
@@ -131,8 +123,7 @@ body {
   white-space: nowrap;
   bottom: 0;
   width: 100%;
-  left: 0; /*50%;
-  transform: translateX(-50%); */
+  left: 0;
 }
 
 .modal {
@@ -143,21 +134,20 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  /*overflow: hidden; */
 }
 
 .modal-conteudo {
   position: relative;
-  display: inline-block; /* se ajusta ao tamanho real da imagem */
-  line-height: 0; /* remove espaço extra abaixo da img */
+  display: inline-block;
+  line-height: 0;
 }
 
 .modal-conteudo img {
   display: block;
   max-width: 90vw;
   max-height: 90vh;
-  width: auto;   /* preserva proporção horizontal */
-  height: auto;  /* preserva proporção vertical */
+  width: auto;
+  height: auto;
 }
 
 .modal-legenda {
@@ -195,6 +185,7 @@ body {
 .modal-fechar:hover {
   background: rgba(0,0,0,0.8);
 }
+
 .swiper-button-next,
 .swiper-button-prev,
 .modal-nav,
@@ -212,63 +203,70 @@ body {
   width: var(--btn-size);
   height: var(--btn-size);
 }
+
 .swiper-button-next,
 .swiper-button-prev {
   transition: transform 0.15s ease, background 0.2s ease;
 }
+
 .modal-nav, .modal-fechar {
   transition: background 0.2s ease, opacity 0.2s ease;
 }
+
 .swiper-button-next::after,
 .swiper-button-prev::after,
 .modal-nav::after,
 .modal-fechar::after {
   font-weight: 900;
   color: #FAFAFA;
-}
-.swiper-button-next::after,
-.swiper-button-prev::after,
-.modal-nav::after,
-.modal-fechar::after {
   font-size: var(--btn-icon-size);
 }
+
 .swiper-button-next:hover,
 .swiper-button-prev:hover,
 .modal-fechar:hover {
   transform: scale(1.1);
   background: rgba(0,0,0,0.7);
 }
+
 .modal-nav:hover {
-  transform: translateY(-50%) scale(1.15); /* 🔥 mantém centralização */
-  background: rgba(0,0,0,0.7); /* 🔥 sem alteração visual */
+  transform: translateY(-50%) scale(1.15);
+  background: rgba(0,0,0,0.7);
 }
+
 .swiper-button-next:active,
 .swiper-button-prev:active {
   transform: scale(0.95);
 }
+
 .modal-fechar:active {
-  transform: scale(0.95); /* 🔥 sem translateY */
+  transform: scale(0.95);
 }
+
 .modal-nav:active {
-  transform: translateY(-50%); /* mantém fixo */
-  background: rgba(0,0,0,0.7); /* 🔥 mantém mesma cor do hover */
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.7);
 }
+
 .modal-nav {
   position: absolute;
   top: 50%;
-  transform: translateY(-50%) scale(1); /* 🔥 inclui scale base */
+  transform: translateY(-50%) scale(1);
   z-index: 10001;
 }
+
 .modal-fechar.oculto,
 .modal-legenda.oculto,
 .modal-nav.oculto {
   opacity: 0;
   pointer-events: none;
 }
+
 .modal-prev { left: 10px; }
 .modal-next { right: 10px; }
 .modal-next::after { content: 'next'; }
 .modal-prev::after { content: 'prev'; }
+
 .modal-fechar::after {
   content: "✕";
   font-weight: 900;
@@ -280,20 +278,20 @@ body {
   line-height: 1;
   transform: translateY(-1px);
 }
+
 /* =========================
    CONTEÚDO ABAIXO
 ========================= */
 #container-conteudo {
   width: 90%;
-  padding: var(--padding-container);  
+  padding: var(--padding-container);
   text-align: left;
 }
 
 #texto {
-    text-align: center;
+  text-align: center;
 }
 
-/* garante que futuros blocos NÃO herdem centralização */
 #container-conteudo > div:not(#texto) {
   text-align: left;
 }
@@ -317,7 +315,7 @@ body {
 }
 
 /* =========================
-   ANIMAÇÃO DE CARREGAMENTO 
+   ANIMAÇÃO DE CARREGAMENTO
 ========================= */
 #loading {
   position: absolute;
@@ -368,7 +366,6 @@ body {
   background: #1b1b1b;
   position: relative;
   overflow: hidden;
-  /* 🔥 GARANTE MESMO LAYOUT DO SLIDE REAL */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -382,7 +379,6 @@ body {
   overflow: hidden;
 }
 
-/* efeito shimmer */
 .skeleton-box::after {
   content: "";
   position: absolute;
@@ -399,7 +395,6 @@ body {
   animation: shimmer 1.2s infinite;
 }
 
-/* legenda skeleton alinhada igual real */
 .skeleton-legenda {
   position: absolute;
   bottom: 0;
@@ -420,9 +415,7 @@ body {
 }
 
 @keyframes shimmer {
-  100% {
-    transform: translateX(100%);
-  }
+  100% { transform: translateX(100%); }
 }
 
 @keyframes shimmer-loading {
@@ -441,12 +434,10 @@ body {
     <h1>Galeria de fotos</h1>
   </div>
 
-    <!-- 🔥 CARROSSEL (TOPO 50%) -->
   <div id="container-carrossel">
     <div class="swiper">
       <div id="loading">
         <div class="spinner"></div>
-        <!-- <p>Carregando...</p> -->
       </div>
       <div class="swiper-wrapper" id="slides"></div>
       <div class="swiper-button-next"></div>
@@ -454,19 +445,16 @@ body {
     </div>
   </div>
 
-  <!-- 🔥 CONTEÚDO (ABAIXO) -->
   <div id="container-conteudo">
     <div id="texto">
       <p><b>Galeria de fotos criada com biblioteca Swiper.js</b></p>
     </div>
   </div>
-  
+
 </div>
 
-<!-- 🔥 RODAPÉ -->
 <div id="rodape" class="rodape">  2026 - Fabio de Almeida Martins  </div>
 
-<!-- MODAL -->
 <div id="modal" class="modal">
   <div class="modal-conteudo">
     <button class="modal-fechar" onclick="fecharModal()"></button>
@@ -511,7 +499,7 @@ let velocityY = 0;
 
 let raf = null;
 let currentIndex = 0;
-let imagensCarregadas = []; // lista global para navegação por setas
+let imagensCarregadas = [];
 
 let legendasMap = {};
 
@@ -527,18 +515,10 @@ const modalNavs = document.querySelectorAll(".modal-nav");
 function normalizarNome(nome) {
   try {
     return decodeURIComponent((nome || ""))
-      .split("/")
-      .pop()
-      .split("?")[0]
-      .trim()
-      .toLowerCase();
+      .split("/").pop().split("?")[0].trim().toLowerCase();
   } catch {
     return (nome || "")
-      .split("/")
-      .pop()
-      .split("?")[0]
-      .trim()
-      .toLowerCase();
+      .split("/").pop().split("?")[0].trim().toLowerCase();
   }
 }
 
@@ -547,16 +527,12 @@ function normalizarNome(nome) {
 ---------------------------*/
 function clampPan() {
   if (!modalImg.naturalWidth) return;
-
   const vw = modal.clientWidth;
   const vh = modal.clientHeight;
-
   const renderedW = modalImg.offsetWidth * scale;
   const renderedH = modalImg.offsetHeight * scale;
-
   const maxX = Math.max(0, (renderedW - vw) / 2);
   const maxY = Math.max(0, (renderedH - vh) / 2);
-
   x = Math.min(maxX, Math.max(-maxX, x));
   y = Math.min(maxY, Math.max(-maxY, y));
 }
@@ -566,8 +542,7 @@ function clampPan() {
 ---------------------------*/
 function render() {
   clampPan();
-  modalImg.style.transform =
-    `translate(${x}px, ${y}px) scale(${scale})`;
+  modalImg.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
 }
 
 /* --------------------------
@@ -591,12 +566,9 @@ function reset() {
 ---------------------------*/
 function zoomAt(cx, cy, newScale) {
   const rect = modal.getBoundingClientRect();
-
   const mx = cx - rect.left - rect.width / 2;
   const my = cy - rect.top - rect.height / 2;
-
   const k = newScale / scale;
-
   x = mx - k * (mx - x);
   y = my - k * (my - y);
   scale = newScale;
@@ -625,6 +597,7 @@ function stopInertia() {
   if (raf) cancelAnimationFrame(raf);
   raf = null;
 }
+
 function limparRecursos() {
   clearTimeout(holdTimer);
   stopInertia();
@@ -636,28 +609,22 @@ function limparRecursos() {
 function abrirModal(src, index, legenda) {
   modal.style.display = "flex";
   modalImg.src = src;
-
-  const modalLegenda = document.getElementById("modalLegenda");
   modalLegenda.textContent = legenda || "";
   modalLegenda.style.display = legenda ? "block" : "none";
-
   modalImg.onload = () => reset();
-
   swiper?.autoplay.stop();
 }
 
 function fecharModal() {
   limparRecursos();
-  modal.style.display = "none"; // 🔥 FALTAVA ISSO
+  modal.style.display = "none";
   requestAnimationFrame(() => {
     loading.classList.add("hidden");
-    const containerCarrossel = document.getElementById("container-carrossel");
-    containerCarrossel.classList.remove("loading"); // 🔥 AQUI
+    document.getElementById("container-carrossel").classList.remove("loading");
     setTimeout(() => loading.style.display = "none", 400);
   });
   stopInertia();
   reset();
-
   swiper?.autoplay.start();
 }
 
@@ -666,12 +633,7 @@ function fecharModal() {
 ---------------------------*/
 modal.addEventListener("wheel", e => {
   e.preventDefault();
-
-  const newScale = Math.min(
-    maxScale,
-    Math.max(minScale, scale * (1 - e.deltaY * 0.001))
-  );
-
+  const newScale = Math.min(maxScale, Math.max(minScale, scale * (1 - e.deltaY * 0.001)));
   zoomAt(e.clientX, e.clientY, newScale);
   render();
 }, { passive: false });
@@ -681,20 +643,16 @@ modal.addEventListener("wheel", e => {
 ---------------------------*/
 modalImg.addEventListener("mousedown", e => {
   e.preventDefault();
-
   isHolding = true;
   isDragging = false;
-
   startX = lastX = e.clientX;
   startY = lastY = e.clientY;
-
   velocityX = 0;
   velocityY = 0;
-
   btnFechar.classList.add("oculto");
   modalLegenda.classList.add("oculto");
-  modalNavs.forEach(btn => btn.classList.add("oculto")); 
-
+  modalNavs.forEach(btn => btn.classList.add("oculto"));
+  ativarListeners(); // ✅ ATIVA HANDLERS
   if (scale <= minScale) {
     holdTimer = setTimeout(() => {
       if (isHolding) {
@@ -708,115 +666,42 @@ modalImg.addEventListener("mousedown", e => {
 });
 
 /* --------------------------
-   MOUSEMOVE
+   HANDLERS (SUBSTITUI LISTENERS GLOBAIS)
 ---------------------------*/
-window.addEventListener("mousemove", e => {
+function mouseMoveHandler(e) {
   if (!isHolding) return;
-
   const dx = e.clientX - lastX;
   const dy = e.clientY - lastY;
-
   const totalDx = e.clientX - startX;
   const totalDy = e.clientY - startY;
-
   if (Math.abs(totalDx) > 4 || Math.abs(totalDy) > 4) {
     isDragging = true;
     clearTimeout(holdTimer);
   }
-
   if (scale > minScale) {
     x += dx;
     y += dy;
-
     velocityX = dx;
     velocityY = dy;
-
     render();
     modalImg.style.cursor = "grabbing";
   }
-
   lastX = e.clientX;
   lastY = e.clientY;
-});
+}
 
-/* --------------------------
-   MOUSEUP
----------------------------*/
-window.addEventListener("mouseup", () => {
+function mouseUpHandler() {
   if (!isHolding) return;
-
   clearTimeout(holdTimer);
-
   isHolding = false;
   isDragging = false;
-
   stopInertia();
-
   animateZoomOut();
   modalImg.style.cursor = "zoom-in";
-
   btnFechar.classList.remove("oculto");
   modalLegenda.classList.remove("oculto");
   modalNavs.forEach(btn => btn.classList.remove("oculto"));
-});
-
-/* --------------------------
-   INÉRCIA
----------------------------*/
-function startInertia() {
-  stopInertia();
-
-  function step() {
-    if (Math.abs(velocityX) < 0.3 && Math.abs(velocityY) < 0.3) {
-      stopInertia();
-      return;
-    }
-
-    x += velocityX;
-    y += velocityY;
-
-    velocityX *= 0.90;
-    velocityY *= 0.90;
-
-    render();
-    raf = requestAnimationFrame(step);
-  }
-
-  raf = requestAnimationFrame(step);
-}
-
-/* --------------------------
-   SWIPER / IMAGENS
----------------------------*/
-async function carregarImagem(i) {
-  return new Promise(resolve => {
-    let idx = 0;
-
-    function tentar() {
-      // 🔥 terminou todas as extensões e não achou
-      if (idx >= extensoes.length) {
-        return resolve({ encontrado: false, i });
-      }
-
-      const src = `img/imagem${i}.${extensoes[idx]}`;
-      const img = new Image();
-
-      img.onload = () => {
-        // 🔥 achou → encerra imediatamente
-        resolve({ src, index: i, encontrado: true });
-      };
-
-      img.onerror = () => {
-        // 🔥 tenta próxima extensão
-        idx++;
-        tentar();
-      };
-
-      img.src = src;
-    }
-
-    tentar();
-  });
+  desativarListeners(); // ✅ REMOVE HANDLERS
 }
 
 /* --------------------------
@@ -836,19 +721,50 @@ function desativarListeners() {
   window.removeEventListener("mouseup", mouseUpHandler);
 }
 
+/* --------------------------
+   INÉRCIA
+---------------------------*/
+function startInertia() {
+  stopInertia();
+  function step() {
+    if (Math.abs(velocityX) < 0.3 && Math.abs(velocityY) < 0.3) {
+      stopInertia();
+      return;
+    }
+    x += velocityX;
+    y += velocityY;
+    velocityX *= 0.90;
+    velocityY *= 0.90;
+    render();
+    raf = requestAnimationFrame(step);
+  }
+  raf = requestAnimationFrame(step);
+}
+
+/* --------------------------
+   SWIPER / IMAGENS
+---------------------------*/
+async function carregarImagem(i) {
+  return new Promise(resolve => {
+    let idx = 0;
+    function tentar() {
+      if (idx >= extensoes.length) return resolve({ encontrado: false, i });
+      const src = `img/imagem${i}.${extensoes[idx]}`;
+      const img = new Image();
+      img.onload = () => resolve({ src, index: i, encontrado: true });
+      img.onerror = () => { idx++; tentar(); };
+      img.src = src;
+    }
+    tentar();
+  });
+}
+
 function montarLegenda(nomeArquivo) {
   const info = legendasMap[nomeArquivo];
-
   if (!info) return nomeArquivo;
-
   const textoLegenda = info.legenda?.trim();
-  const textoCreditos = info.creditos
-    ? `Imagem: ${info.creditos.trim()}`
-    : "";
-
-  return [textoLegenda, textoCreditos]
-    .filter(Boolean)
-    .join(" / ");
+  const textoCreditos = info.creditos ? `Imagem: ${info.creditos.trim()}` : "";
+  return [textoLegenda, textoCreditos].filter(Boolean).join(" / ");
 }
 
 /* --------------------------
@@ -865,29 +781,23 @@ async function carregarTodas() {
   } catch(e) {
     console.warn("Erro legendas:", e);
   }
-  
+
   const validos = [];
   const limiteFalhas = 3;
   let falhasSeguidas = 0;
 
   for (let i = 1; i <= 9999; i++) {
     const img = await carregarImagem(i);
-
     if (img.encontrado) {
       validos.push(img);
-      falhasSeguidas = 0; // 🔥 reset ao encontrar imagem válida
+      falhasSeguidas = 0;
     } else {
-      falhasSeguidas++; // 🔥 falha de índice (imagem inexistente)
+      falhasSeguidas++;
     }
-
-    // 🔥 encerra após 3 imagens consecutivas não encontradas
-    if (falhasSeguidas >= limiteFalhas) {
-      break;
-    }
+    if (falhasSeguidas >= limiteFalhas) break;
   }
 
   imagensCarregadas = validos;
-
   container.innerHTML = "";
 
   validos.forEach(img => {
@@ -954,7 +864,7 @@ modal.onclick = e => {
 
 window.addEventListener("keydown", e => {
   if (e.key === "Escape") { fecharModal(); return; }
-  if (scale > minScale) return; // bloqueia setas no modo zoom
+  if (scale > minScale) return;
 
   const modalAberto = modal.style.display === "flex";
 
@@ -979,22 +889,20 @@ function navegarModal(idx) {
   const img = imagensCarregadas[idx];
   const nomeArquivo = normalizarNome(img.src);
   const legenda = montarLegenda(nomeArquivo);
-
   abrirModal(img.src, img.index, legenda);
 }
+
 /* --------------------------
    BOTÕES DO MODAL (SETAS)
 ---------------------------*/
 document.querySelector(".modal-next").onclick = () => {
-  if (scale > minScale) return; // respeita o zoom
-
+  if (scale > minScale) return;
   currentIndex = (currentIndex + 1) % imagensCarregadas.length;
   navegarModal(currentIndex);
 };
 
 document.querySelector(".modal-prev").onclick = () => {
-  if (scale > minScale) return; // respeita o zoom
-
+  if (scale > minScale) return;
   currentIndex = (currentIndex - 1 + imagensCarregadas.length) % imagensCarregadas.length;
   navegarModal(currentIndex);
 };
@@ -1024,8 +932,6 @@ async function carregarLegendas() {
     legendasMap = {};
 
     index.forEach(item => {
-
-      // 🔥 ACEITA VÁRIOS NOMES DE COLUNA
       const nome =
         item.nome_arquivo ||
         item.nomearquivo ||
@@ -1035,7 +941,6 @@ async function carregarLegendas() {
         "";
 
       const chave = normalizarNome(nome);
-
       if (!chave) return;
 
       legendasMap[chave] = {
@@ -1051,19 +956,17 @@ async function carregarLegendas() {
     legendasMap = {};
   }
 }
+
 /* --------------------------
    CARREGAMENTO DO SKELETON
 ---------------------------*/
 function criarSkeletons(qtd = 10) {
   container.innerHTML = "";
-
   for (let i = 0; i < qtd; i++) {
     const slide = document.createElement("div");
     slide.className = "swiper-slide skeleton-slide";
-
     const box = document.createElement("div");
     box.className = "skeleton-box";
-
     slide.appendChild(box);
     container.appendChild(slide);
   }
