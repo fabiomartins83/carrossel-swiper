@@ -828,14 +828,28 @@ async function carregarTodas() {
   const limiteFalhas = 3;
   let falhasSeguidas = 0;
 
-  for (let i = 1; i <= 9999; i++) {
-    const img = await carregarImagem(i);
-    if (img.encontrado) {
-      validos.push(img);
-      falhasSeguidas = 0;
-    } else {
-      falhasSeguidas++;
+  for (let i = 1; i <= 9999; i += 3) {
+
+    const batch = [
+      carregarImagem(i),
+      carregarImagem(i + 1),
+      carregarImagem(i + 2)
+    ];
+
+    const resultados = await Promise.all(batch);
+
+    for (const img of resultados) {
+
+      if (!img || !img.encontrado) {
+        falhasSeguidas++;
+      } else {
+        validos.push(img);
+        falhasSeguidas = 0;
+      }
+
+      if (falhasSeguidas >= limiteFalhas) break;
     }
+
     if (falhasSeguidas >= limiteFalhas) break;
   }
 
@@ -890,9 +904,10 @@ async function carregarTodas() {
       slideShadows: false
     }
   });
+
   requestAnimationFrame(() => {
     loading.classList.add("hidden");
-    containerCarrossel.classList.remove("loading"); // garante exibição das setas
+    containerCarrossel.classList.remove("loading");
     setTimeout(() => loading.style.display = "none", 400);
   });
 }
