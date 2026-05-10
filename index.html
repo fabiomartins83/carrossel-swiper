@@ -13,6 +13,8 @@
   --padding-container: 2%;
   --pagebkgd: #FAFAFA;
   --pagetextcolor: #090909;
+  --btn-size: 48px;
+  --btn-icon-size: 22px;
 }
 
 html {
@@ -207,13 +209,8 @@ body {
   outline: none;
   border: none;
   font-family: swiper-icons;
-}
-.swiper-button-next,
-.swiper-button-prev,
-.modal-nav, 
-.modal-fechar {
-  width: 48px;
-  height: 48px;
+  width: var(--btn-size);
+  height: var(--btn-size);
 }
 .swiper-button-next,
 .swiper-button-prev {
@@ -230,12 +227,10 @@ body {
   color: #FAFAFA;
 }
 .swiper-button-next::after,
-.swiper-button-prev::after {
-  font-size: 22px;
-}
+.swiper-button-prev::after,
 .modal-nav::after,
 .modal-fechar::after {
-  font-size: 22px;
+  font-size: var(--btn-icon-size);
 }
 .swiper-button-next:hover,
 .swiper-button-prev:hover,
@@ -530,11 +525,21 @@ const modalNavs = document.querySelectorAll(".modal-nav");
    NORMALIZAR STRING
 ---------------------------*/
 function normalizarNome(nome) {
-  return (nome || "")
-    .split("/").pop()      // remove caminho
-    .split("?")[0]         // remove querystring
-    .trim()
-    .toLowerCase();
+  try {
+    return decodeURIComponent((nome || ""))
+      .split("/")
+      .pop()
+      .split("?")[0]
+      .trim()
+      .toLowerCase();
+  } catch {
+    return (nome || "")
+      .split("/")
+      .pop()
+      .split("?")[0]
+      .trim()
+      .toLowerCase();
+  }
 }
 
 /* --------------------------
@@ -820,16 +825,30 @@ async function carregarImagem(i) {
 function ativarListeners() {
   if (listenersAtivos) return;
   listenersAtivos = true;
-
-  window.addEventListener("mousemove", onMove);
-  window.addEventListener("mouseup", onUp);
+  window.addEventListener("mousemove", mouseMoveHandler);
+  window.addEventListener("mouseup", mouseUpHandler);
 }
 
 function desativarListeners() {
+  if (!listenersAtivos) return;
   listenersAtivos = false;
+  window.removeEventListener("mousemove", mouseMoveHandler);
+  window.removeEventListener("mouseup", mouseUpHandler);
+}
 
-  window.removeEventListener("mousemove", onMove);
-  window.removeEventListener("mouseup", onUp);
+function montarLegenda(nomeArquivo) {
+  const info = legendasMap[nomeArquivo];
+
+  if (!info) return nomeArquivo;
+
+  const textoLegenda = info.legenda?.trim();
+  const textoCreditos = info.creditos
+    ? `Imagem: ${info.creditos.trim()}`
+    : "";
+
+  return [textoLegenda, textoCreditos]
+    .filter(Boolean)
+    .join(" / ");
 }
 
 /* --------------------------
@@ -882,24 +901,7 @@ async function carregarTodas() {
     leg.className = "legenda";
 
     const nomeArquivo = normalizarNome(img.src);
-    const info = legendasMap[nomeArquivo];
-
-    if (info) {
-      const textoLegenda = info.legenda?.trim();
-      const textoCreditos = info.creditos
-        ? `Imagem: ${info.creditos.trim()}`
-        : "";
-
-      leg.textContent = [textoLegenda, textoCreditos]
-        .filter(Boolean)
-        .join(" / ");
-    } else {
-      leg.textContent = nomeArquivo;
-    }
-
-    el.onload = () => {
-      leg.style.width = "100%";
-    };
+    leg.textContent = montarLegenda(nomeArquivo);
 
     el.onclick = () => {
       currentIndex = imagensCarregadas.indexOf(img);
@@ -976,18 +978,10 @@ window.addEventListener("keydown", e => {
 function navegarModal(idx) {
   const img = imagensCarregadas[idx];
   const nomeArquivo = normalizarNome(img.src);
-  const info = legendasMap[nomeArquivo];
-
-  const legenda = info
-    ? [
-        info.legenda?.trim(),
-        info.creditos ? `Imagem: ${info.creditos.trim()}` : ""
-      ].filter(Boolean).join(" / ")
-    : nomeArquivo;
+  const legenda = montarLegenda(nomeArquivo);
 
   abrirModal(img.src, img.index, legenda);
 }
-
 /* --------------------------
    BOTÕES DO MODAL (SETAS)
 ---------------------------*/
@@ -1006,7 +1000,7 @@ document.querySelector(".modal-prev").onclick = () => {
 };
 
 /* --------------------------
-   CARREGAMENTO DE LEGENDA
+   LEGENDAS
 ---------------------------*/
 async function carregarLegendas() {
   try {
