@@ -11,25 +11,50 @@
 :root {
   --altura-carrossel: clamp(200px, 24rem, 420px);
   --padding-container: 2%;
+  --pagebkgd: #FAFAFA;
+  --pagetextcolor: #090909;
 }
 
-*, html, p {
+html {
+  font-size: 16px;
+}
+
+* {
   margin: 0;
   padding: 0;
 }
 
+p {
+  margin: 0;
+  padding: 0;
+  font-size: 1rem;
+}
+
 body {
   margin: 0;
-  background: #111;
+  background: var(--pagebkgd);
   font-family: Arial;
-  color:#CFCFCF;
-  display: block; /*flex; */
-/*
+  color: var(--pagetextcolor);
+  display: flex; /*block; */
   flex-direction: column;
+  min-height: 100vh;
+/*
   align-items: center;
   justify-content: center;
   height: 100vh;
 */
+}
+
+/* =========================
+   RODAPÉ DA PÁGINA
+========================= */
+.rodape {
+  width: 100%;
+  text-align: center;
+  padding: 8px 0;
+  background: transparent;
+  color: var(--pagetextcolor);
+  font-size: 0.8rem;
 }
 
 /* =========================
@@ -213,6 +238,7 @@ body {
 #pagina {
   padding: 2%;
   box-sizing: border-box;
+  flex: 1;
 }
 
 #titulo {
@@ -222,7 +248,6 @@ body {
 
 #titulo h1 {
   margin: 0;
-  color: #CFCFCF;
 }
 
 /* =========================
@@ -231,7 +256,6 @@ body {
 #loading {
   position: absolute;
   height: 100%;
-  background: #222;
   z-index: 10;
   overflow: hidden;
   border-radius: 5px;
@@ -239,6 +263,8 @@ body {
   justify-content: center;
   align-items: center;
   inset: 0;
+  transition: opacity 0.4s ease;
+  background: #f0f0f0;
 }
 
 #loading::after {
@@ -248,7 +274,7 @@ body {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255,255,255,0.08) 50%,
+    rgba(0,0,0,0.05) 50%,
     transparent 100%
   );
   animation: shimmer-loading 1.4s infinite;
@@ -257,11 +283,16 @@ body {
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid #444;
-  border-top: 4px solid #fff;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 10px;
+  border: 4px solid #DDD;
+  border-top: 4px solid #999;
+}
+
+#loading.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* =========================
@@ -311,15 +342,6 @@ body {
   background: rgba(30,30,30,0.7);
 }
 
-/* skeleton da legenda */
-.skeleton-legenda {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 40px;
-  background: rgba(30,30,30,0.7);
-}
-
 /* =========================
    CONTROLE DAS SETAS
 ========================= */
@@ -354,38 +376,43 @@ body {
 <body>
 
 <div id="pagina">
-    <div id="titulo">
-        <h1>Galeria de fotos</h1>
-    </div>
+
+  <div id="titulo">
+    <h1>Galeria de fotos</h1>
+  </div>
 
     <!-- 🔥 CARROSSEL (TOPO 50%) -->
-    <div id="container-carrossel">
-      <div class="swiper">
-        <div id="loading">
-          <div class="spinner"></div>
-          <!-- <p>Carregando...</p> -->
-        </div>
-        <div class="swiper-wrapper" id="slides"></div>
-        <div class="swiper-button-next"></div>
-        <div class="swiper-button-prev"></div>
+  <div id="container-carrossel">
+    <div class="swiper">
+      <div id="loading">
+        <div class="spinner"></div>
+        <!-- <p>Carregando...</p> -->
       </div>
+      <div class="swiper-wrapper" id="slides"></div>
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
     </div>
+  </div>
 
-    <!-- 🔥 CONTEÚDO (ABAIXO) -->
-    <div id="container-conteudo">
-        <div id="texto">
-            <p>Galeria de fotos criada com biblioteca Swiper.js</p>
-        </div>
+  <!-- 🔥 CONTEÚDO (ABAIXO) -->
+  <div id="container-conteudo">
+    <div id="texto">
+      <p><b>Galeria de fotos criada com biblioteca Swiper.js</b></p>
     </div>
+  </div>
+  
+</div>
 
-    <!-- MODAL -->
-    <div id="modal" class="modal">
-        <div class="modal-conteudo">
-            <button class="modal-fechar" onclick="fecharModal()">✕</button>
-            <img id="modalImg">
-            <div id="modalLegenda" class="modal-legenda"></div>
-        </div>
-    </div>
+<!-- 🔥 RODAPÉ -->
+<div id="rodape" class="rodape">  2026 - Fabio de Almeida Martins  </div>
+
+<!-- MODAL -->
+<div id="modal" class="modal">
+  <div class="modal-conteudo">
+    <button class="modal-fechar" onclick="fecharModal()">✕</button>
+    <img id="modalImg">
+    <div id="modalLegenda" class="modal-legenda"></div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
@@ -426,6 +453,11 @@ let imagensCarregadas = []; // lista global para navegação por setas
 
 let legendasMap = {};
 
+let listenersAtivos = false;
+
+const btnFechar = document.querySelector(".modal-fechar");
+const modalLegenda = document.getElementById("modalLegenda");
+
 /* --------------------------
    NORMALIZAR STRING
 ---------------------------*/
@@ -462,7 +494,7 @@ function clampPan() {
 function render() {
   clampPan();
   modalImg.style.transform =
-    `translate3d(${x}px,${y}px,0) scale(${scale})`;
+    `translate(${x}px, ${y}px) scale(${scale})`;
 }
 
 /* --------------------------
@@ -514,6 +546,18 @@ function animateZoomOut() {
 }
 
 /* --------------------------
+   LIMPEZA DE TIMERS E RAF
+---------------------------*/
+function stopInertia() {
+  if (raf) cancelAnimationFrame(raf);
+  raf = null;
+}
+function limparRecursos() {
+  clearTimeout(holdTimer);
+  stopInertia();
+}
+
+/* --------------------------
    ABRIR / FECHAR
 ---------------------------*/
 function abrirModal(src, index, legenda) {
@@ -530,8 +574,12 @@ function abrirModal(src, index, legenda) {
 }
 
 function fecharModal() {
-  modal.style.display = "none";
-
+  limparRecursos();
+  modal.style.display = "none"; // 🔥 FALTAVA ISSO
+  requestAnimationFrame(() => {
+    loading.classList.add("hidden");
+    setTimeout(() => loading.style.display = "none", 400);
+  });
   stopInertia();
   reset();
 
@@ -568,8 +616,8 @@ modalImg.addEventListener("mousedown", e => {
   velocityX = 0;
   velocityY = 0;
 
-  document.querySelector(".modal-fechar").classList.add("oculto");
-  document.getElementById("modalLegenda").classList.add("oculto");
+  btnFechar.classList.add("oculto");
+  modalLegenda.classList.add("oculto");
 
   if (scale <= minScale) {
     holdTimer = setTimeout(() => {
@@ -631,8 +679,8 @@ window.addEventListener("mouseup", () => {
   animateZoomOut();
   modalImg.style.cursor = "zoom-in";
 
-  document.querySelector(".modal-fechar").classList.remove("oculto");
-  document.getElementById("modalLegenda").classList.remove("oculto");
+  btnFechar.classList.remove("oculto");
+  modalLegenda.classList.remove("oculto");
 });
 
 /* --------------------------
@@ -658,11 +706,6 @@ function startInertia() {
   }
 
   raf = requestAnimationFrame(step);
-}
-
-function stopInertia() {
-  if (raf) cancelAnimationFrame(raf);
-  raf = null;
 }
 
 /* --------------------------
@@ -704,6 +747,27 @@ async function carregarImagem(i) {
   });
 }
 
+/* --------------------------
+   LISTENER DE MOUSE GLOBAL
+---------------------------*/
+function ativarListeners() {
+  if (listenersAtivos) return;
+  listenersAtivos = true;
+
+  window.addEventListener("mousemove", onMove);
+  window.addEventListener("mouseup", onUp);
+}
+
+function desativarListeners() {
+  listenersAtivos = false;
+
+  window.removeEventListener("mousemove", onMove);
+  window.removeEventListener("mouseup", onUp);
+}
+
+/* --------------------------
+   CARREGAR TODAS
+---------------------------*/
 async function carregarTodas() {
   const containerCarrossel = document.getElementById("container-carrossel");
   containerCarrossel.classList.add("loading");
@@ -711,7 +775,11 @@ async function carregarTodas() {
   criarSkeletons(1);
   // loading é ocultado apenas após o carregamento (no final da função)
 
-  await carregarLegendas();
+  try {
+    await carregarLegendas();
+  } catch(e) {
+    console.warn("Erro legendas:", e);
+  }
   
   const validos = [];
   const limiteFalhas = 3;
@@ -766,12 +834,7 @@ async function carregarTodas() {
     }
 
     el.onload = () => {
-      const slideH = slide.offsetHeight;
-      const imgH   = el.offsetHeight;
-      const imgTop = el.offsetTop;
-
-      leg.style.width  = el.offsetWidth + "px";
-      leg.style.bottom = (slideH - imgTop - imgH) + "px"; /* borda inferior da imagem */
+      leg.style.width = "100%";
     };
 
     el.onclick = () => {
@@ -812,9 +875,10 @@ async function carregarTodas() {
       slideShadows: false
     }
   });
-  loading.style.display = "none";
-  containerCarrossel.classList.remove("loading");
-
+  requestAnimationFrame(() => {
+    loading.classList.add("hidden");
+    setTimeout(() => loading.style.display = "none", 400);
+  });
 }
 
 /* --------------------------
