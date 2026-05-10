@@ -197,7 +197,8 @@ body {
 }
 
 .modal-fechar.oculto,
-.modal-legenda.oculto {
+.modal-legenda.oculto,
+.modal-nav.oculto {
   opacity: 0;
   pointer-events: none;
 }
@@ -230,6 +231,9 @@ body {
   border: none;
   font-family: swiper-icons;
 }
+.modal-nav {
+  transition: background 0.2s ease; /* só cor */
+}
 .swiper-button-next::after,
 .swiper-button-prev::after,
 .modal-nav::after,
@@ -246,7 +250,7 @@ body {
 }
 .modal-nav:hover {
   transform: translateY(-50%); /* 🔥 mantém posição sem zoom */
-  background: rgba(0,0,0,0.5); /* 🔥 sem alteração visual */
+  background: rgba(0,0,0,0.7); /* 🔥 sem alteração visual */
 }
 .swiper-button-next:active,
 .swiper-button-prev:active,
@@ -254,7 +258,8 @@ body {
   transform: scale(0.9);
 }
 .modal-nav:active {
-  transform: translateY(-50%); /* 🔥 evita “afundar” */
+  transform: translateY(-50%); /* mantém fixo */
+  background: rgba(0,0,0,0.7); /* 🔥 mantém mesma cor do hover */
 }
 .modal-nav {
   position: absolute;
@@ -513,6 +518,7 @@ let listenersAtivos = false;
 
 const btnFechar = document.querySelector(".modal-fechar");
 const modalLegenda = document.getElementById("modalLegenda");
+const modalNavs = document.querySelectorAll(".modal-nav");
 
 /* --------------------------
    NORMALIZAR STRING
@@ -676,6 +682,7 @@ modalImg.addEventListener("mousedown", e => {
 
   btnFechar.classList.add("oculto");
   modalLegenda.classList.add("oculto");
+  modalNavs.forEach(btn => btn.classList.add("oculto")); 
 
   if (scale <= minScale) {
     holdTimer = setTimeout(() => {
@@ -739,6 +746,7 @@ window.addEventListener("mouseup", () => {
 
   btnFechar.classList.remove("oculto");
   modalLegenda.classList.remove("oculto");
+  modalNavs.forEach(btn => btn.classList.remove("oculto"));
 });
 
 /* --------------------------
