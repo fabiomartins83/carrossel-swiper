@@ -120,7 +120,7 @@ body {
   text-align: center;
   font-size: 14px;
   box-sizing: border-box;
-  white-space: nowrap;
+  white-space: normal;
   bottom: 0;
   width: 100%;
   left: 0;
@@ -134,6 +134,14 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 9999;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.modal.ativo {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .modal-conteudo {
@@ -608,16 +616,24 @@ function limparRecursos() {
 ---------------------------*/
 function abrirModal(src, index, legenda) {
   modal.style.display = "flex";
+  requestAnimationFrame(() => {
+    modal.classList.add("ativo");
+  });
   modalImg.src = src;
   modalLegenda.textContent = legenda || "";
   modalLegenda.style.display = legenda ? "block" : "none";
   modalImg.onload = () => reset();
-  swiper?.autoplay.stop();
+  if (swiper?.autoplay) swiper.autoplay.stop();
+  ativarListeners();
 }
 
 function fecharModal() {
   limparRecursos();
-  modal.style.display = "none";
+  modal.classList.remove("ativo");
+  setTimeout(() => {
+    modal.style.display = "none";
+  }, 200);
+  desativarListeners();
   requestAnimationFrame(() => {
     loading.classList.add("hidden");
     document.getElementById("container-carrossel").classList.remove("loading");
@@ -625,7 +641,7 @@ function fecharModal() {
   });
   stopInertia();
   reset();
-  swiper?.autoplay.start();
+  if (swiper?.autoplay) swiper.autoplay.start();
 }
 
 /* --------------------------
@@ -768,6 +784,11 @@ function montarLegenda(nomeArquivo) {
 }
 
 /* --------------------------
+   LISTENER DO TECLADO
+---------------------------*/
+window.addEventListener("keydown", keydownHandler);
+
+/* --------------------------
    CARREGAR TODAS
 ---------------------------*/
 async function carregarTodas() {
@@ -862,28 +883,38 @@ modal.onclick = e => {
   if (e.target === modal) fecharModal();
 };
 
-window.addEventListener("keydown", e => {
-  if (e.key === "Escape") { fecharModal(); return; }
-  if (scale > minScale) return;
+function keydownHandler(e) {
+  const modalAberto = modal.classList.contains("ativo");
 
-  const modalAberto = modal.style.display === "flex";
+  if (e.key === "Escape") {
+    if (modalAberto) fecharModal();
+    return;
+  }
 
-  if (e.key === "ArrowRight") {
-    if (modalAberto) {
+  // 🔥 MODAL ATIVO → navega imagens do modal
+  if (modalAberto) {
+    if (scale > minScale) return;
+
+    if (e.key === "ArrowRight") {
       currentIndex = (currentIndex + 1) % imagensCarregadas.length;
       navegarModal(currentIndex);
-    } else {
-      swiper?.slideNext();
-    }
-  } else if (e.key === "ArrowLeft") {
-    if (modalAberto) {
+    } 
+    else if (e.key === "ArrowLeft") {
       currentIndex = (currentIndex - 1 + imagensCarregadas.length) % imagensCarregadas.length;
       navegarModal(currentIndex);
-    } else {
-      swiper?.slidePrev();
     }
+
+    return;
   }
-});
+
+  // 🔥 MODAL FECHADO → navega Swiper
+  if (e.key === "ArrowRight") {
+    swiper?.slideNext();
+  } 
+  else if (e.key === "ArrowLeft") {
+    swiper?.slidePrev();
+  }
+}
 
 function navegarModal(idx) {
   const img = imagensCarregadas[idx];
