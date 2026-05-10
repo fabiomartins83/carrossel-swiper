@@ -343,21 +343,24 @@ body {
   justify-content: center;
   align-items: center;
   inset: 0;
-  transition: opacity 0.4s ease;
-  background: #f0f0f0;
+  transition: none; /*opacity 0.4s ease; */
+  background: transparent; /* #f0f0f0; */
 }
 
 #loading::after {
   content: "";
   position: absolute;
   inset: 0;
+/*
   background: linear-gradient(
     90deg,
     transparent 0%,
     rgba(0,0,0,0.05) 50%,
     transparent 100%
   );
-  animation: shimmer-loading 1.4s infinite;
+*/
+  background: transparent;
+  animation: none; /* shimmer-loading 1.4s infinite; */
 }
 
 .spinner {
